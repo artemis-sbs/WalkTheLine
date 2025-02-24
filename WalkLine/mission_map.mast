@@ -6,16 +6,28 @@ shared admiral_face =  "ter #964b00 8 1;ter #968b00 3 0;ter #968b00 4 0;ter #968
 
 @map/WalkTheLine "Walk The Line"
 " A line of bases along the border are under assault.  Protect each station before rushing to the next, in a brave holding action that can have only one final result...
+metadata: ```
+Properties:
+  Main:
+    Player Ships: 'gui_int_slider("$text:int;low: 1.0;high:8.0;", var= "player_count")'
+    Difficulty: 'gui_int_slider("$text:int;low: 1.0;high:11.0;", var= "difficulty")'
+  Map:
+    Terrain: 'gui_drop_down("$text: {terrain_select};list: none, few, some, lots, many",var="terrain_select")'
+    Lethal Terrain: 'gui_drop_down("$text: {lethal_select};list: none, few, some, lots, many", var="lethal_select")'
+    Friendly Ships: 'gui_drop_down("$text: {friendly_select};list: none, few, some, lots, many", var="friendly_select")'
+    Monsters: 'gui_drop_down("$text: {monster_select};list: none, few, some, lots, many", var="monster_select")'
+    Upgrades: 'gui_drop_down("$text: {upgrade_select};list: none, few, some, lots, many", var= "upgrade_select")'
+    Time Limit: 'gui_input("desc: Minutes;", var="game_time_limit")'
+```
 
+    # create new station and enemies function----------------------------------------------------------------------------------------------------
+    task_schedule(create_new_station)
 
-# create new station and enemies function----------------------------------------------------------------------------------------------------
-task_schedule(create_new_station)
+    # player ship ----------------------------------------------------------------------------------------------------
+    await task_schedule (spawn_players)
 
-# player ship ----------------------------------------------------------------------------------------------------
-await task_schedule (spawn_players)
-
-# check if all players are dead----------------------------------------------------------------------------------------------------
-task_schedule(check_players)
+    # check if all players are dead----------------------------------------------------------------------------------------------------
+    task_schedule(check_players)
 
 
 
