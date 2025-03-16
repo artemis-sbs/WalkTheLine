@@ -24,7 +24,8 @@ Properties:
     task_schedule(create_new_station)
 
     # player ship ----------------------------------------------------------------------------------------------------
-    await task_schedule (spawn_players)
+    await task_schedule(spawn_players)
+    await task_schedule(docking_standard_player_station)
 
     # check if all players are dead----------------------------------------------------------------------------------------------------
     task_schedule(check_players)
