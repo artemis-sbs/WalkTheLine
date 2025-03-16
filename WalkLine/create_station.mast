@@ -29,11 +29,11 @@ emptySpaceCounter = 0
 
 
     
-    terrain_value = terrain_to_value(terrain_select)
-    lethal_value =  terrain_to_value(lethal_select)
-    friendly_value = terrain_to_value(friendly_select)
-    monster_value = terrain_to_value(monster_select)
-    upgrade_value = terrain_to_value(upgrade_select)
+    terrain_value = terrain_to_value(TERRAIN_SELECT)
+    lethal_value =  terrain_to_value(LETHAL_SELECT)
+    friendly_value = terrain_to_value(FRIENDLY_SELECT)
+    monster_value = terrain_to_value(MONSTER_SELECT)
+    upgrade_value = terrain_to_value(UPGRADE_SELECT)
 
     upgrade_value = 0
     num_upgrade = 0
@@ -163,43 +163,46 @@ emptySpaceCounter = 0
 
     enemyTypeNameList = ["Kralien", "Torgoth", "Arvonian", "Ximni"]
     
-    fleet_count = num_stations_spawned * 2      # 1 + int(difficulty/2)
-    fleet_index = int(difficulty - 1)
+    fleet_count = num_stations_spawned * 2      # 1 + int(DIFFICULTY/2)
+    fleet_index = int(DIFFICULTY - 1)
     fleet_index = min(fleet_index + fleet_count//4,10)
 
     for a in range(fleet_count):
-        enemy_temp = random.choices(enemyTypeNameList, weights=(100-6*difficulty, difficulty*2, difficulty*2, difficulty*2))
+        enemy_temp = random.choices(enemyTypeNameList, weights=(100-6*DIFFICULTY, DIFFICULTY*2, DIFFICULTY*2, DIFFICULTY*2))
         enemy = enemy_temp[0]
         fleet_pos = Vec3.rand_in_sphere(10000, 30000, False, True)
         fleet_pos = fleet_pos + next_pos
-        create_siege_fleet(enemy, fleet_index, fleet_pos.x, fleet_pos.y, fleet_pos.z)
+        #create_siege_fleet(enemy, fleet_index, fleet_pos.x, fleet_pos.y, fleet_pos.z)
+        prefab_spawn(prefab_fleet_raider, {"race": enemy, "fleet_difficulty": DIFFICULTY, "START_X": fleet_pos.x, "START_Y": fleet_pos.y, "START_Z": fleet_pos.z})
 
-    if 0 == num_stations_spawned%3 and difficulty > 3:
+    if 0 == num_stations_spawned%3 and DIFFICULTY > 3:
         fleet_pos = Vec3.rand_in_sphere(39990, 40000, False, True)
-        create_siege_fleet("Skaraan", fleet_index, fleet_pos.x, fleet_pos.y, fleet_pos.z)
+        #create_siege_fleet("Skaraan", fleet_index, fleet_pos.x, fleet_pos.y, fleet_pos.z)
+        prefab_spawn(prefab_fleet_raider, {"race": "skaraan", "fleet_difficulty": DIFFICULTY, "START_X": fleet_pos.x, "START_Y": fleet_pos.y, "START_Z": fleet_pos.z})
 
     await delay_sim(seconds=5)  # to make sure the player exists
 
-    # make sure friend eyes are updated ---------------------------
-    my_players = to_object_list(role("__player__") & role("tsn"))
-    for player in my_players:
+    # # make sure friend eyes are updated ---------------------------
+    #my_players = to_object_list(role("__player__") & role("tsn"))
+    # for player in my_players:
 
-        blob = to_blob(player)
-        num_ids = blob.get("num_extra_scan_sources",0)
+    #     blob = to_blob(player)
+    #     num_ids = blob.get("num_extra_scan_sources",0)
 
-        for friend in any_role("friendly, station"):
-            blob.set("extra_scan_source", friend, num_ids)
-            num_ids += 1
-            follow_route_select_science(player, friend)
+    #     for friend in any_role("friendly, station"):
+    #         blob.set("extra_scan_source", friend, num_ids)
+    #         num_ids += 1
+    #         follow_route_select_science(player, friend)
 
-        blob.set("num_extra_scan_sources",num_ids,0)
+    #     blob.set("num_extra_scan_sources",num_ids,0)
 
 
     # announcement from new station
     wordListA = ["suspicious", "dubious", "questionable", "unusual", "debatable", "equivocal", "suspect"]
     wordListB = ["apprehensive","cautious","wary","uncertain","worried","anxious"]
     wordListC = ["we have cookies!","we need your help.","we could use your support.","drinks are on me!","our entertainment suites are the best in the sector!","I have a bad feeling about this..."]
-
+    
+    my_players = to_object_list(role("__player__") & role("tsn"))
     if len(my_players) > 0:
         textLine = f"{my_players[0].name}, "
     else:

@@ -9,15 +9,15 @@ shared admiral_face =  "ter #964b00 8 1;ter #968b00 3 0;ter #968b00 4 0;ter #968
 metadata: ```
 Properties:
   Main:
-    Player Ships: 'gui_int_slider("$text:int;low: 1.0;high:8.0;", var= "player_count")'
-    Difficulty: 'gui_int_slider("$text:int;low: 1.0;high:11.0;", var= "difficulty")'
+    Player Ships: 'gui_int_slider("$text:int;low: 1.0;high:8.0;", var= "PLAYER_COUNT")'
+    Difficulty: 'gui_int_slider("$text:int;low: 1.0;high:11.0;", var= "DIFFICULTY")'
   Map:
-    Terrain: 'gui_drop_down("$text: {terrain_select};list: none, few, some, lots, many",var="terrain_select")'
-    Lethal Terrain: 'gui_drop_down("$text: {lethal_select};list: none, few, some, lots, many", var="lethal_select")'
-    Friendly Ships: 'gui_drop_down("$text: {friendly_select};list: none, few, some, lots, many", var="friendly_select")'
-    Monsters: 'gui_drop_down("$text: {monster_select};list: none, few, some, lots, many", var="monster_select")'
-    Upgrades: 'gui_drop_down("$text: {upgrade_select};list: none, few, some, lots, many", var= "upgrade_select")'
-    Time Limit: 'gui_input("desc: Minutes;", var="game_time_limit")'
+    Terrain: 'gui_drop_down("$text: {TERRAIN_SELECT};list: none, few, some, lots, many",var="TERRAIN_SELECT")'
+    Lethal Terrain: 'gui_drop_down("$text: {LETHAL_SELECT};list: none, few, some, lots, many", var="LETHAL_SELECT")'
+    Friendly Ships: 'gui_drop_down("$text: {FRIENDLY_SELECT};list: none, few, some, lots, many", var="FRIENDLY_SELECT")'
+    Monsters: 'gui_drop_down("$text: {MONSTER_SELECT};list: none, few, some, lots, many", var="MONSTER_SELECT")'
+    Upgrades: 'gui_drop_down("$text: {UPGRADE_SELECT};list: none, few, some, lots, many", var= "UPGRADE_SELECT")'
+    Time Limit: 'gui_input("desc: Minutes;", var="GAME_TIME_LIMIT")'
 ```
 
     # create new station and enemies function----------------------------------------------------------------------------------------------------
@@ -57,9 +57,9 @@ await delay_sim(10)
 #jump game_lost if end_game_delay > 0
 
 # do the end screen
-start_text = f"{station_name} was destroyed. You saved {num_stations_spawned-1} stations at difficulty {difficulty}."
-game_started = False
-game_ended = True
+START_TEXT = f"{station_name} was destroyed. You saved {num_stations_spawned-1} stations at DIFFICULTY {DIFFICULTY}."
+GAME_STARTED = False
+GAME_ENDED = True
 
 sbs.play_music_file(0,"music/default/failure")
 signal_emit("show_game_results", None)
