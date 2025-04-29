@@ -172,12 +172,10 @@ emptySpaceCounter = 0
         enemy = enemy_temp[0]
         fleet_pos = Vec3.rand_in_sphere(10000, 30000, False, True)
         fleet_pos = fleet_pos + next_pos
-        #create_siege_fleet(enemy, fleet_index, fleet_pos.x, fleet_pos.y, fleet_pos.z)
         prefab_spawn(prefab_fleet_raider, {"race": enemy, "fleet_difficulty": DIFFICULTY, "START_X": fleet_pos.x, "START_Y": fleet_pos.y, "START_Z": fleet_pos.z})
 
     if 0 == num_stations_spawned%3 and DIFFICULTY > 3:
         fleet_pos = Vec3.rand_in_sphere(39990, 40000, False, True)
-        #create_siege_fleet("Skaraan", fleet_index, fleet_pos.x, fleet_pos.y, fleet_pos.z)
         prefab_spawn(prefab_fleet_raider, {"race": "skaraan", "fleet_difficulty": DIFFICULTY, "START_X": fleet_pos.x, "START_Y": fleet_pos.y, "START_Z": fleet_pos.z})
 
     await delay_sim(seconds=5)  # to make sure the player exists
