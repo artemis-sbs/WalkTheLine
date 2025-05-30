@@ -23,6 +23,10 @@ shared num_stations_spawned = 0
 # face of admiral
 shared admiral_face =  "ter #964b00 8 1;ter #968b00 3 0;ter #968b00 4 0;ter #968b00 5 2;ter #fff 3 5;ter #964b00 8 4;"
 
+#
+#
+# This is the map for the mission
+#
 @map/WalkTheLine "Walk The Line"
 " A line of bases along the border are under assault.  Protect each station before rushing to the next, in a brave holding action that can have only one final result...
 metadata: ```
@@ -39,82 +43,88 @@ Properties:
     Time Limit: 'gui_input("desc: Minutes;", var="GAME_TIME_LIMIT")'
 ```
 
-    # create new station and enemies function----------------------------------------------------------------------------------------------------
+# create new station and enemies function----------------------------------------------------------------------------------------------------
     task_schedule(create_new_station)
 
-    # player ship ----------------------------------------------------------------------------------------------------
+# player ship ----------------------------------------------------------------------------------------------------
     await task_schedule(spawn_players)
+# Setup docking
     await task_schedule(docking_standard_player_station)
-
-    # check if all players are dead----------------------------------------------------------------------------------------------------
+# 
+# Run a task to check if all players are dead----------------------------------------------------------------------------------------------------
     task_schedule(check_players)
     ->END
         
 
-
+#
+# This code is called when something is destroyed
+# Specifically it watches for stations
+#
 //damage/destroy if has_role(to_object(DESTROYED_ID),"station")
-
+# Any station destroyed ends the game
 #--- game_lost ---
-
-station_name = DESTROYED.name
-
-my_players = to_object_list(role("__player__") & role("tsn"))
-if len(my_players) > 0:
-    textLine = f"{my_players[0].name}, "
-else:
-    textLine = f"All TSN ships, "
-
-textLine = f"{textLine} - {station_name} has been destroyed!  Your mission has come to a glorious conclusion.  You fought for the safety of {num_stations_spawned} stations!  You will be remembered."
-send_general_message("Admiral Harkin", textLine, admiral_face, 0)
-
-#delay a bit
-await delay_sim(10)
-#end_game_delay -= 1
-#jump game_lost if end_game_delay > 0
-
-# do the end screen
-START_TEXT = f"{station_name} was destroyed. You saved {num_stations_spawned-1} stations at DIFFICULTY {DIFFICULTY}."
-GAME_STARTED = False
-GAME_ENDED = True
-
-sbs.play_music_file(0,"music/default/failure")
-signal_emit("show_game_results", None)
-->END
-
-
-
-#------------------------------------------------------------------------------------------------------------
-
-======= check_players ======= 
+    station_name = DESTROYED.name
 
     my_players = to_object_list(role("__player__") & role("tsn"))
+    if len(my_players) > 0:
+        textLine = f"{my_players[0].name}, "
+    else:
+        textLine = f"All TSN ships, "
+
+    textLine = f"{textLine} - {station_name} has been destroyed!  Your mission has come to a glorious conclusion.  You fought for the safety of {num_stations_spawned} stations!  You will be remembered."
+    send_general_message("Admiral Harkin", textLine, admiral_face, 0)
+
+#delay a bit
+    await delay_sim(10)
+
+# do the end screen
+    START_TEXT = f"{station_name} was destroyed. You saved {num_stations_spawned-1} stations at DIFFICULTY {DIFFICULTY}."
+    GAME_STARTED = False
+    GAME_ENDED = True
+
+    sbs.play_music_file(0,"music/default/failure")
+    signal_emit("show_game_results", None)
+    ->END
+
+
+
+
+#
+# This is a task that watches for players
+# when all players are gone, the game ends
+#
+======= check_players ======= 
+#
+# Get a list of player, i.e. things with the role __player__
+#
+    my_players = to_object_list(role("__player__") & role("tsn"))
+# if there are no more, game ends
     if len(my_players) <= 0:
-
         textLine = f"All TSN ships have been destroyed!  Your mission has come to a glorious conclusion.  You fought for the safety of {num_stations_spawned} stations!  You will be remembered."
-    #	sbs.send_story_dialog(0, "Admiral Harkin", textLine, 		admiral_face, "#744")
         send_general_message("Admiral Harkin", textLine, admiral_face, 0)
-
-        #delay a bit
+#delay a bit
         await delay_sim(10)
 
-        # do the end screen
+# do the end screen
         START_TEXT = f"All TSN ships destroyed. You saved {num_stations_spawned-1} stations at DIFFICULTY {DIFFICULTY}."
-        #START_TEXT = "Game Over."
         GAME_STARTED = False
         GAME_ENDED = True
 
         sbs.play_music_file(0,"music/default/failure")
         signal_emit("show_game_results", None)
         ->END
-
-
+# If there are still player ships, keep the task running
+# after waiting three seconds
     await delay_sim(seconds=3)
     jump check_players
     #------------------------------------------------------------------------------------------------------------
 
+#
+# This create a new station and enemies
+#
 ======= create_new_station ======= 
 
-    #checking for enemies alive
+#checking for enemies alive
     raider_id_list = role("raider")
     emptySpaceCounter += 1
     if len(raider_id_list) > 0:
@@ -128,7 +138,6 @@ signal_emit("show_game_results", None)
 
     # skip creation of new level
     jump end_of_create if 0 != tickmode
-
     
     terrain_value = terrain_to_value(TERRAIN_SELECT)
     lethal_value =  terrain_to_value(LETHAL_SELECT)
@@ -177,37 +186,13 @@ signal_emit("show_game_results", None)
 
     num_stations_spawned += 1
 
-    # create asteroids  ----------------------------------------------------------------------------------------------------
-    asteroid_types = ship_data_plain_asteroid_keys()
+# create asteroids  ----------------------------------------------------------------------------------------------------
+    cluster_spawn_points = scatter_box(60,  next_pos.x, next_pos.y, next_pos.z, 10000,0,10000, True)
+    terrain_spawn_asteroid_scatter(cluster_spawn_points, height=500)
 
-    cluster_spawn_points = scatter_box(60,  next_pos.x, next_pos.y, next_pos.z, 10000,1000,10000, True)
-
-    for v2 in cluster_spawn_points:
-        a_type = random.choice(asteroid_types)
-
-        asteroid = terrain_spawn(v2.x, v2.y, v2.z,None, "#,asteroid", a_type, "behav_asteroid")
-        asteroid.engine_object.steer_yaw = random.uniform(0.0001, 0.003)
-        asteroid.engine_object.steer_pitch = -random.uniform(0.0001, 0.003)
-        asteroid.engine_object.steer_roll = random.uniform(0.0001, 0.003)
-
-        sx = random.uniform(1.0,2.0) + 3
-        sy = sx
-        sz = sx
-        sm = max(sx, sy)
-        sm = max(sm, sz)
-
-        asteroid.blob.set("local_scale_x_coeff", sx)
-        asteroid.blob.set("local_scale_y_coeff", sy)
-        asteroid.blob.set("local_scale_z_coeff", sz)
-    #   asteroid.blob.set("exclusionradius", er * 2)
-        asteroid.engine_object.exclusion_radius = asteroid.engine_object.exclusion_radius * 1.0 * sm
-
-    # create nebs  ----------------------------------------------------------------------------------------------------
-
-    cluster_spawn_points = scatter_box(60,  next_pos.x, next_pos.y, next_pos.z, 20000,1000,20000, True)
-
-    for v2 in cluster_spawn_points:
-        nebula = terrain_spawn(v2.x, v2.y, v2.z,None, "#,nebula", "nebula", "behav_nebula")
+# create nebs  ----------------------------------------------------------------------------------------------------
+    cluster_spawn_points = scatter_box(60,  next_pos.x, next_pos.y, next_pos.z, 20000,0,20000, True)
+    terrain_spawn_nebula_scatter(cluster_spawn_points,500)
 
     # create candy  ----------------------------------------------------------------------------------------------------
     num_upgrade = 5
@@ -217,7 +202,7 @@ signal_emit("show_game_results", None)
     for v in spawn_points:
         upg = random.randint(  0,   len(upgrade_list)-1  )
         pickup_spawn(v.x, v.y, v.z, upgrade_list[upg])
-        log(f"{upgrade_list[upg]} spawned {v.x},{v.y},{v.z}", "upgrades")
+
 
     # create mines ----------------------------------------------------------------------------------------------------
     #wrap a minefield around the station
@@ -233,7 +218,6 @@ signal_emit("show_game_results", None)
         inner = random.randrange(1200,1500)
         cluster_spawn_points = scatter_ring(width, depth, next_pos.x,next_pos.y,next_pos.z, inner, inner, startAngle, endAngle)
         # Random type, but same for cluster
-        # a_type = f"danger_{1}{ship_data'a'}"
         for v2 in cluster_spawn_points:
             #keep value between -500 and 500??
     #                v2.y = abs(v2.y) % 500 * (v2.y/abs(v2.y))
@@ -242,26 +226,22 @@ signal_emit("show_game_results", None)
             mine_obj.blob.set("blast_radius", 1000)
             mine_obj.engine_object.blink_state = -5
 
-    #num += 1
 
-    # create black holes
+
+# create black holes
     if random.randrange(0,100) > 66:
         bhPos = next_pos.rand_offset(2000,3000, ring=True)
         terrain_spawn_black_hole(*bhPos.xyz, gravity_radius= 1500, gravity_strength=1.0, turbulence_strength= 1.0, collision_damage=200)
 
-    # create monsters
 
-    # create friendlies
-    tsn_ship_data = ship_data_filter_ship_data_by_side(None, "TSN", "defender", ret_key_only=False)
-    num_friends = random.randrange(0,3)
+# create friendlies
+    num_friends = friendly_value
     for g in range(num_friends):
-        bhPos = next_pos.rand_offset(2000,3000, ring=True)
-        ship = random.choice(tsn_ship_data)
-        name_val = random.randrange(0,999)
-        friend = to_id(npc_spawn(*bhPos.xyz, f"tsn {str(name_val).zfill(3)}", "tsn, friendly", ship["key"], "behav_npcship"))
+        spawn_pos = next_pos.rand_offset(2000,3000, ring=True)
+        data = {"START_X": spawn_pos.x, "START_Y": spawn_pos.y, "START_Z": spawn_pos.z}
+        prefab_spawn(prefab_npc_defender, data)
 
-    # create invaders
-
+# create invaders
     enemyTypeNameList = ["Kralien", "Torgoth", "Arvonian", "Ximni"]
     
     fleet_count = num_stations_spawned * 2      # 1 + int(DIFFICULTY/2)
@@ -281,22 +261,8 @@ signal_emit("show_game_results", None)
 
     await delay_sim(seconds=5)  # to make sure the player exists
 
-    # # make sure friend eyes are updated ---------------------------
-    #my_players = to_object_list(role("__player__") & role("tsn"))
-    # for player in my_players:
 
-    #     blob = to_blob(player)
-    #     num_ids = blob.get("num_extra_scan_sources",0)
-
-    #     for friend in any_role("friendly, station"):
-    #         blob.set("extra_scan_source", friend, num_ids)
-    #         num_ids += 1
-    #         follow_route_select_science(player, friend)
-
-    #     blob.set("num_extra_scan_sources",num_ids,0)
-
-
-    # announcement from new station
+# announcement from new station
     wordListA = ["suspicious", "dubious", "questionable", "unusual", "debatable", "equivocal", "suspect"]
     wordListB = ["apprehensive","cautious","wary","uncertain","worried","anxious"]
     wordListC = ["we have cookies!","we need your help.","we could use your support.","drinks are on me!","our entertainment suites are the best in the sector!","I have a bad feeling about this..."]
