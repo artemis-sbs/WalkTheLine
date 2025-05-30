@@ -21,7 +21,8 @@
         "artemis-sbs.LegendaryMissions.upgrades.v1.1.0.mastlib",
         "artemis-sbs.LegendaryMissions.gamemaster.v1.1.0.mastlib",
         "artemis-sbs.LegendaryMissions.gamemaster_comms.v1.1.0.mastlib",
-        "artemis-sbs.LegendaryMissions.basic_player_destroy.v1.1.0.mastlib"
+        "artemis-sbs.LegendaryMissions.basic_player_destroy.v1.1.0.mastlib",
+        "artemis-sbs.LegendaryMissions.basic_random_skybox.v1.1.0.mastlib"
     ]
 }
 
