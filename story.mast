@@ -150,10 +150,10 @@ Properties:
     if upgrade_value==1:
         num_upgrade = random.randint(1,3)
 
-        if upgrade_value==2:
+    if upgrade_value==2:
         num_upgrade = random.randint(3,5)
 
-    if upgrade_value==2:
+    if upgrade_value==3:
         num_upgrade = random.randint(5,10)
 
     if upgrade_value==4:
