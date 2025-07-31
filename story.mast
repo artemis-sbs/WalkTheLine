@@ -184,6 +184,15 @@ Properties:
     station_face = random_terran(civilian=False)
     set_face(phoenix_id, station_face) # station face
 
+    # Setup docking and friendly eyes (has_science_scan is for gamemaster, admiral etc.)
+    for player_id in any_role("__player__,has_science_scan"):
+        player = to_object(player_id)
+        continue if player is None
+        if has_role(player_id, "__player__"):
+            docking_set_docking_logic(player_id, phoenix_id, docking_dock_with_friendly_station)
+        link(player_id, "extra_scan_source", phoenix_id)
+
+
     num_stations_spawned += 1
 
 # create asteroids  ----------------------------------------------------------------------------------------------------
