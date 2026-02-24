@@ -23,6 +23,26 @@ shared num_stations_spawned = 0
 # face of admiral
 shared admiral_face =  "ter #964b00 8 1;ter #968b00 3 0;ter #968b00 4 0;ter #968b00 5 2;ter #fff 3 5;ter #964b00 8 4;"
 
+#region Spawn TSN side
+tsn = await prefab_spawn(prefab_side_generic, data={"key":"tsn"}) #Spawn using only the key
+# Add a display name, description and color programatically
+side_set_display_name(tsn, "TSN") 
+side_set_description(tsn, "The Terran Stellar Navy")
+side_set_icon_color(tsn, "#07F")
+#endregion
+
+#region Spawn Raider side
+# Everything can be set in the prefab data.
+raider = await prefab_spawn(prefab_side_generic, data={"key":"raider", "name": "Raider", "color": "#F00", "desc":"Hostile Aliens"})
+#endregion
+
+# Now we set the relationships between the sides.
+side_set_relations(tsn, raider, sbs.DIPLOMACY.HOSTILE)
+
+#The colors for diplomatic relations can be set via script.
+sim.set_diplomacy_color(sbs.DIPLOMACY.HOSTILE,"#F00")
+sim.set_diplomacy_color(sbs.DIPLOMACY.NEUTRAL,"#077")
+
 #
 #
 # This is the map for the mission
