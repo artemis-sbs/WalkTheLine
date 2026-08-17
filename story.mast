@@ -102,7 +102,7 @@ Properties:
     GAME_STARTED = False
     GAME_ENDED = True
 
-    sbs.play_music_file(0,"music/default/failure")
+    music_play_sting("failure")
     signal_emit("show_game_results", None)
     ->END
 
@@ -130,7 +130,7 @@ Properties:
         GAME_STARTED = False
         GAME_ENDED = True
 
-        sbs.play_music_file(0,"music/default/failure")
+        music_play_sting("failure")
         signal_emit("show_game_results", None)
         ->END
 # If there are still player ships, keep the task running
